@@ -1,5 +1,6 @@
 package org.craftedsw.tripservicekata.trip;
 
+import static org.craftedsw.tripservicekata.trip.UserBuilder.aUser;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -36,25 +37,27 @@ public class TripServiceTest {
 
 	@Test public void
 	should_not_returns_any_trips_when_users_are_not_friends() {
-		User friend = new User();
-		friend.addFriend(ANOTHER_FRIEND);
-		friend.addTrip(TO_BRAZIL);
+		User friend = aUser()
+							.friendsWith(ANOTHER_FRIEND)
+							.withTrips(TO_BRAZIL)
+							.build();
 		
 		List<Trip> friendTrips = tripService.getTripsByUser(friend);
 		assertEquals(friendTrips.size(), 0);
 	}
 	
 	@Test public void
-	should_returns_friend_trips_when_users_are_friends() {
-		User friend = new User();
-		friend.addFriend(ANOTHER_FRIEND);
-		friend.addFriend(loggedInUser);
-		friend.addTrip(TO_BRAZIL);
-		friend.addTrip(TO_LONDON);
+	should_returns_friend_trips_when_users_are_friends() {		
+		User friend = aUser()
+						.friendsWith(ANOTHER_FRIEND, loggedInUser)
+						.withTrips(TO_BRAZIL, TO_LONDON)
+						.build();
 		
 		List<Trip> friendTrips = tripService.getTripsByUser(friend);
 		assertEquals(friendTrips.size(), 2);		
 	}
+	
+	
 	
 	private class TestableTripService extends TripService {
 		@Override
@@ -68,4 +71,5 @@ public class TripServiceTest {
 		}
 		
 	}
+	
 }
