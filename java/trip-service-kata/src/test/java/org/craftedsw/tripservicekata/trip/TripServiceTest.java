@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.craftedsw.tripservicekata.exception.UserNotLoggedInException;
 import org.craftedsw.tripservicekata.user.User;
-import org.hamcrest.generator.HamcrestFactoryWriter;
 import org.junit.Before;
 import org.junit.Test;
 
