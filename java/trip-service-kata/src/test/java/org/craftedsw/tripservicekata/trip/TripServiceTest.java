@@ -2,6 +2,7 @@ package org.craftedsw.tripservicekata.trip;
 
 import static org.craftedsw.tripservicekata.trip.UserBuilder.aUser;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 
@@ -9,7 +10,13 @@ import org.craftedsw.tripservicekata.exception.UserNotLoggedInException;
 import org.craftedsw.tripservicekata.user.User;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TripServiceTest {
 	private static final User GUEST = null;
 	private static final User UNUSED_USER = null;
@@ -18,16 +25,12 @@ public class TripServiceTest {
 	private static final Trip TO_BRAZIL = new Trip();
 	private static final Trip TO_LONDON = new Trip();
 	
-	private TestableTripService tripService;
-	
-	@Before public void
-	initialize() {
-		tripService = new TestableTripService();	
-	}
+	@Mock private TripDAO tripDAO;
+	@InjectMocks @Spy TripService tripService = new TripService();
 	
 	@Test(expected = UserNotLoggedInException.class) public void
 	should_throw_an_exception_when_user_is_not_logged_in() {
-		tripService.getTripsByUser(UNUSED_USER, GUEST);
+		tripService.getFriendTrips(UNUSED_USER, GUEST);
 	}
 
 	@Test public void
@@ -37,7 +40,7 @@ public class TripServiceTest {
 							.withTrips(TO_BRAZIL)
 							.build();
 		
-		List<Trip> friendTrips = tripService.getTripsByUser(friend, REGISTERED_USER);
+		List<Trip> friendTrips = tripService.getFriendTrips(friend, REGISTERED_USER);
 		assertEquals(friendTrips.size(), 0);
 	}
 	
@@ -48,18 +51,10 @@ public class TripServiceTest {
 						.withTrips(TO_BRAZIL, TO_LONDON)
 						.build();
 		
-		List<Trip> friendTrips = tripService.getTripsByUser(friend, REGISTERED_USER);
-		assertEquals(friendTrips.size(), 2);		
-	}
-	
-	
-	
-	private class TestableTripService extends TripService {
-		@Override
-		protected List<Trip> tripsBy(User user) {
-			return user.trips();
-		}
+		when(tripDAO.tripsBy(friend)).thenReturn(friend.trips());
 		
+		List<Trip> friendTrips = tripService.getFriendTrips(friend, REGISTERED_USER);
+		assertEquals(friendTrips.size(), 2);		
 	}
 	
 }
